@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ lý Hỏi Đáp - An Lạc</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Quicksand:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { 
+            font-family: 'Quicksand', sans-serif; 
+            background-color: #F5F5DC;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80' viewBox='0 0 80 80'%3E%3Cg fill='%23d2b48c' fill-opacity='0.1'%3E%3Cpath fill-rule='evenodd' d='M11 0l5 20H6l5-20zm42 31a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM0 72h40v4H0v-4zm0-8h31v4H0v-4zm20-16h20v4H20v-4zM0 56h40v4H0v-4zm0-8h20v4H0v-4zm0-8h11v4H0v-4zm0-8h31v4H0v-4zm0-8h40v4H0v-4zm0-8h20v4H0v-4z'/%3E%3C/g%3E%3C/svg%3E");
+        }
+        .font-title { font-family: 'Playfair Display', serif; }
+        #chat-messages::-webkit-scrollbar { width: 8px; }
+        #chat-messages::-webkit-scrollbar-track { background: #EFEBE9; }
+        #chat-messages::-webkit-scrollbar-thumb { background: #A1887F; border-radius: 4px; }
+        #chat-messages::-webkit-scrollbar-thumb:hover { background: #8D6E63; }
+        .message-bubble { transition: transform 0.2s ease-out; }
+        .message-bubble:hover { transform: translateY(-2px); }
+    </style>
+</head>
+<body class="bg-stone-100 text-stone-800 flex justify-center items-center h-screen p-4">
+
+    <div class="w-full max-w-2xl h-full flex flex-col bg-[#FDFDFD]/80 backdrop-blur-sm shadow-2xl rounded-2xl border border-stone-300/50 overflow-hidden">
+        
+        <div class="text-center py-5 border-b border-stone-200">
+            <h1 class="font-title text-3xl font-bold text-amber-800">TRỢ LÝ HỎI ĐÁP VỀ NGÔI NHÀ NHỎ</h1>
+            <p class="text-stone-500 text-sm mt-1">Trợ lý trợ giúp các vấn đề về Ngôi Nhà Nhỏ</p>
+        </div>
+
+        <div id="chat-messages" class="flex-1 p-6 overflow-y-auto bg-stone-50/50">
+            <!-- Tin nhắn sẽ được thêm bằng JavaScript -->
+        </div>
+
+        <div class="p-4 bg-white/70 border-t border-stone-200">
+            <div class="flex items-center bg-stone-100 rounded-full p-2 shadow-inner">
+                <input type="text" id="user-input" placeholder="Đang tải tài liệu, vui lòng chờ..." class="flex-1 bg-transparent px-4 py-2 text-stone-700 focus:outline-none" autocomplete="off" disabled>
+                <button id="send-button" class="bg-amber-700 hover:bg-amber-800 text-white w-10 h-10 rounded-full transition duration-300 flex items-center justify-center disabled:opacity-50 disabled:bg-stone-400" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22l-4-9-9-4 22-2z"></path></svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === THÔNG TIN CẤU HÌNH QUAN TRỌNG ===
+        // THAY ĐỔI: URL của Web Service trên Render sẽ được điền vào đây.
+        // Khi chạy local, nó sẽ là http://localhost:3001
+        const BACKEND_API_URL = "URL_CUA_RENDER_SE_DAT_O_DAY"; // SẼ CẬP NHẬT SAU KHI DEPLOY
+        
+        const DEFAULT_DOCUMENT_URL = "https://raw.githubusercontent.com/patonline85/tai-lieu/main/dulieu.txt";
+        let documentContext = "";
+        // ===================================
+
+        const chatMessages = document.getElementById('chat-messages');
+        const userInput = document.getElementById('user-input');
+        const sendButton = document.getElementById('send-button');
+
+        window.addEventListener('load', async () => {
+            addMessage('Đang tải tài liệu Hướng dẫn niệm Ngôi Nhà Nhỏ', 'bot', 'info');
+            try {
+                const response = await fetch(DEFAULT_DOCUMENT_URL);
+                if (!response.ok) {
+                    throw new Error(`Không thể tải tệp (status: ${response.status})`);
+                }
+                documentContext = await response.text();
+                addMessage('Đệ chào Sư huynh ạ ! Sư huynh cần đệ trợ giúp về Ngôi nhà nhỏ ạ ?', 'bot');
+                userInput.disabled = false;
+                userInput.placeholder = "Nhập nội dung câu hỏi của Sư Huynh...";
+            } catch (error) {
+                console.error("Lỗi khi tải tài liệu mặc định:", error);
+                addMessage(`Lỗi khi tải tài liệu: ${error.message}`, 'bot', 'error');
+                userInput.placeholder = "Tải tài liệu thất bại!";
+            }
+        });
+
+        function addMessage(message, sender, type = 'normal') {
+            const messageWrapper = document.createElement('div');
+            messageWrapper.classList.add('message', 'mb-4', 'flex');
+            if (sender === 'user') {
+                messageWrapper.classList.add('justify-end');
+            } else {
+                messageWrapper.classList.add('justify-start');
+            }
+
+            const messageBubble = document.createElement('div');
+            messageBubble.classList.add('message-bubble', 'rounded-xl', 'p-4', 'max-w-xl', 'shadow-md');
+            
+            if (type === 'error') {
+                messageBubble.classList.add('error-message', 'bg-red-800/80', 'text-white');
+            } else if (type === 'info') {
+                 messageBubble.classList.add('info-message', 'bg-stone-200', 'text-stone-500');
+            } else {
+                if (sender === 'user') {
+                    messageBubble.classList.add('bg-amber-600', 'text-white');
+                } else {
+                    messageBubble.classList.add('bg-white', 'text-stone-700');
+                }
+            }
+
+            messageBubble.innerHTML = `<p>${message.replace(/\n/g, '<br>')}</p>`;
+            messageWrapper.appendChild(messageBubble);
+            chatMessages.appendChild(messageWrapper);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // THAY ĐỔI: Hàm gọi API đã được sửa lại để gọi đến backend của chúng ta
+        async function callBackendAPI(question, context) {
+            // Kiểm tra xem URL backend đã được cấu hình chưa
+            if (BACKEND_API_URL === "URL_CUA_RENDER_SE_DAT_O_DAY") {
+                throw new Error("Lỗi cấu hình: URL của backend chưa được thiết lập trong file index.html.");
+            }
+
+            const response = await fetch(`${BACKEND_API_URL}/api/chat`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    question: question,
+                    context: context
+                })
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(`Lỗi từ server: ${errorData.error || response.statusText}`);
+            }
+
+            const result = await response.json();
+            return result.answer;
+        }
+
+        async function handleSendMessage() {
+            const userQuestion = userInput.value.trim();
+            if (!userQuestion) return;
+            
+            if (!documentContext) {
+                addMessage("Lỗi: Tài liệu chưa được tải xong hoặc tải thất bại.", 'bot', 'error');
+                return;
+            }
+
+            addMessage(userQuestion, 'user');
+            userInput.value = '';
+            sendButton.disabled = true;
+            sendButton.innerHTML = '...';
+
+            try {
+                // THAY ĐỔI: Gọi hàm mới callBackendAPI
+                const answer = await callBackendAPI(userQuestion, documentContext);
+                addMessage(answer, 'bot');
+            } catch (error) {
+                console.error("Lỗi chi tiết:", error);
+                addMessage(error.message, 'bot', 'error');
+            } finally {
+                sendButton.disabled = false;
+                sendButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 2L11 13"></path><path d="M22 2L15 22l-4-9-9-4 22-2z"></path></svg>';
+            }
+        }
+
+        sendButton.addEventListener('click', handleSendMessage);
+        userInput.addEventListener('keydown', (event) => { if (event.key === 'Enter') handleSendMessage(); });
+        userInput.addEventListener('input', () => { 
+            sendButton.disabled = userInput.value.trim().length === 0 || !documentContext; 
+        });
+    </script>
+</body>
+</html>
