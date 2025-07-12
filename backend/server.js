@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3001; // Sử dụng cổng do Render cung cấ
 // Trong môi trường production, bạn nên chỉ định rõ domain của frontend
 app.use(cors()); 
 // Cho phép server đọc dữ liệu JSON từ request body
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
 
 // --- 4. Lấy API Key từ biến môi trường ---
 // Đây là cách an toàn để quản lý API Key.
