@@ -53,7 +53,7 @@ app.post('/api/chat', async (req, res) => {
             console.log(`  ${index + 1}. Score: ${chunk.score.toFixed(4)} (Source: ${chunk.source})`);
         });
 
-        const relevantChunks = topChunks.filter(c => c.score > 0.72);
+        const relevantChunks = topChunks.filter(c => c.score > 0.7);
 
         if (relevantChunks.length === 0) {
             console.log("No relevant chunks found. Returning custom fallback message.");
