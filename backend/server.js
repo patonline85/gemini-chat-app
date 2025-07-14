@@ -10,7 +10,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = "gemini-1.5-flash-latest";
+const MODEL = "gemini-pro";
 
 app.post('/api/chat', async (req, res) => {
     if (!GEMINI_API_KEY) {
