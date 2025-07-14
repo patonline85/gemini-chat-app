@@ -46,7 +46,7 @@ ${question}
         const response = await axios.post(
             'https://openrouter.ai/api/v1/chat/completions',
             {
-                model: "meta-llama/llama-3-70b-instruct",
+                model: "google/gemma-7b-it",
                 messages: [
                     {
                         role: "system",
