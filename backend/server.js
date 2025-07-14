@@ -46,7 +46,7 @@ ${question}
         const response = await axios.post(
             'https://api.groq.com/openai/v1/chat/completions',
             {
-                model: "mixtral-8x7b-32768",  // hoặc "llama3-70b-8192"
+                model: "llama3-70b-8192",  // hoặc "llama3-70b-8192"
                 messages: [
                     { role: "system", content: "Bạn là một Phật tử tên Đệ, trả lời như hướng dẫn." },
                     { role: "user", content: prompt }
