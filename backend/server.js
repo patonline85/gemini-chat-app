@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'google/gemma-2b-it';  // <-- Dùng Gemma 2B
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct';  // ✅ Dùng Mistral
 
 app.post('/api/chat', async (req, res) => {
     if (!OPENROUTER_API_KEY) {
@@ -80,5 +80,5 @@ ${question}
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Server đang chạy với OpenRouter (Gemma 2B) tại http://localhost:${PORT}`);
+    console.log(`✅ Server đang chạy với OpenRouter (Mistral 7B) tại http://localhost:${PORT}`);
 });
