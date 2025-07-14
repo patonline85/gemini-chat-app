@@ -9,6 +9,7 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
+const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'google/gemma-2b-it';  // <-- Dùng Gemma 2B
 
 app.post('/api/chat', async (req, res) => {
     if (!OPENROUTER_API_KEY) {
@@ -46,7 +47,7 @@ ${question}
         const response = await axios.post(
             'https://openrouter.ai/api/v1/chat/completions',
             {
-                model: "google/gemma-7b-it",
+                model: OPENROUTER_MODEL,
                 messages: [
                     {
                         role: "system",
@@ -79,5 +80,5 @@ ${question}
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Server đang chạy với OpenRouter tại http://localhost:${PORT}`);
+    console.log(`✅ Server đang chạy với OpenRouter (Gemma 2B) tại http://localhost:${PORT}`);
 });
