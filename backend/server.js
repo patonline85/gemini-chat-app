@@ -5,16 +5,14 @@ require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
-
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const MODEL = "gemini-1.5-pro-latest";
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
 app.post('/api/chat', async (req, res) => {
-    if (!GEMINI_API_KEY) {
-        return res.status(500).json({ error: 'API Key chưa được cấu hình.' });
+    if (!GROQ_API_KEY) {
+        return res.status(500).json({ error: 'GROQ_API_KEY chưa được cấu hình.' });
     }
 
     const { question, context } = req.body;
@@ -46,23 +44,32 @@ ${question}
 
     try {
         const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${GEMINI_API_KEY}`,
+            'https://api.groq.com/openai/v1/chat/completions',
             {
-                contents: [{ parts: [{ text: prompt }] }],
-                generationConfig: { temperature: 0.3 }
+                model: "mixtral-8x7b-32768",  // hoặc "llama3-70b-8192"
+                messages: [
+                    { role: "system", content: "Bạn là một Phật tử tên Đệ, trả lời như hướng dẫn." },
+                    { role: "user", content: prompt }
+                ],
+                temperature: 0.3
             },
-            { headers: { 'Content-Type': 'application/json' } }
+            {
+                headers: {
+                    'Authorization': `Bearer ${GROQ_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
+            }
         );
 
-        const answer = response.data.candidates[0]?.content?.parts[0]?.text || "Không nhận được câu trả lời hợp lệ từ AI.";
+        const answer = response.data.choices[0].message.content;
         res.json({ answer });
 
     } catch (error) {
-        console.error('Lỗi khi gọi API:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Đã có lỗi xảy ra phía server khi xử lý yêu cầu.' });
+        console.error('Lỗi từ Groq:', error.response?.data || error.message);
+        res.status(500).json({ error: 'Lỗi khi gọi Groq API.' });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Server đang chạy tại http://localhost:${PORT}`);
+    console.log(`✅ Groq server đang chạy tại http://localhost:${PORT}`);
 });
