@@ -8,12 +8,11 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const OPENROUTER_MODEL = process.env.OPENROUTER_MODEL || 'mistralai/mistral-7b-instruct';  // ✅ Dùng Mistral
+const DEEPSEEK_API_KEY = process.env.DEEPSEEK_API_KEY;
 
 app.post('/api/chat', async (req, res) => {
-    if (!OPENROUTER_API_KEY) {
-        return res.status(500).json({ error: 'OPENROUTER_API_KEY chưa được cấu hình.' });
+    if (!DEEPSEEK_API_KEY) {
+        return res.status(500).json({ error: 'DEEPSEEK_API_KEY chưa được cấu hình.' });
     }
 
     const { question, context } = req.body;
@@ -45,9 +44,9 @@ ${question}
 
     try {
         const response = await axios.post(
-            'https://openrouter.ai/api/v1/chat/completions',
+            'https://api.deepseek.com/v1/chat/completions',
             {
-                model: OPENROUTER_MODEL,
+                model: 'deepseek-chat',  // Hoặc 'deepseek-coder' nếu là model code
                 messages: [
                     {
                         role: "system",
@@ -62,9 +61,7 @@ ${question}
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-                    'HTTP-Referer': 'https://pmtl.site',
-                    'X-Title': 'PhatTuChatBot',
+                    'Authorization': `Bearer ${DEEPSEEK_API_KEY}`,
                     'Content-Type': 'application/json'
                 }
             }
@@ -74,11 +71,11 @@ ${question}
         res.json({ answer });
 
     } catch (error) {
-        console.error('Lỗi từ OpenRouter:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Lỗi khi gọi OpenRouter API.' });
+        console.error('Lỗi từ DeepSeek:', error.response?.data || error.message);
+        res.status(500).json({ error: 'Lỗi khi gọi DeepSeek API.' });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Server đang chạy với OpenRouter (Mistral 7B) tại http://localhost:${PORT}`);
+    console.log(`✅ Server đang chạy với DeepSeek tại http://localhost:${PORT}`);
 });
