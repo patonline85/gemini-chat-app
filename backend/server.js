@@ -8,11 +8,11 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 
 app.post('/api/chat', async (req, res) => {
-    if (!GROQ_API_KEY) {
-        return res.status(500).json({ error: 'GROQ_API_KEY chưa được cấu hình.' });
+    if (!OPENROUTER_API_KEY) {
+        return res.status(500).json({ error: 'OPENROUTER_API_KEY chưa được cấu hình.' });
     }
 
     const { question, context } = req.body;
@@ -44,18 +44,26 @@ ${question}
 
     try {
         const response = await axios.post(
-            'https://api.groq.com/openai/v1/chat/completions',
+            'https://openrouter.ai/api/v1/chat/completions',
             {
-                model: "llama3-70b-8192",  // hoặc "llama3-70b-8192"
+                model: "openai/gpt-3.5-turbo",
                 messages: [
-                    { role: "system", content: "Bạn là một Phật tử tên Đệ, trả lời như hướng dẫn." },
-                    { role: "user", content: prompt }
+                    {
+                        role: "system",
+                        content: "Bạn là một Phật tử tên Đệ, trả lời như hướng dẫn."
+                    },
+                    {
+                        role: "user",
+                        content: prompt
+                    }
                 ],
                 temperature: 0.3
             },
             {
                 headers: {
-                    'Authorization': `Bearer ${GROQ_API_KEY}`,
+                    'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                    'HTTP-Referer': 'https://pmtl.site',
+                    'X-Title': 'PhatTuChatBot',
                     'Content-Type': 'application/json'
                 }
             }
@@ -65,11 +73,11 @@ ${question}
         res.json({ answer });
 
     } catch (error) {
-        console.error('Lỗi từ Groq:', error.response?.data || error.message);
-        res.status(500).json({ error: 'Lỗi khi gọi Groq API.' });
+        console.error('Lỗi từ OpenRouter:', error.response?.data || error.message);
+        res.status(500).json({ error: 'Lỗi khi gọi OpenRouter API.' });
     }
 });
 
 app.listen(PORT, () => {
-    console.log(`✅ Groq server đang chạy tại http://localhost:${PORT}`);
+    console.log(`✅ Server đang chạy với OpenRouter tại http://localhost:${PORT}`);
 });
