@@ -300,6 +300,7 @@
             }
         });
 
+        // --- FIX: Thêm hàm sao chép vào clipboard ---
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -335,17 +336,20 @@
             }
             document.body.removeChild(textArea);
         }
+        // --- FIX: Kết thúc hàm sao chép ---
 
         keyListDiv.addEventListener('click', async (e) => {
             const card = e.target.closest('.key-card');
             if (!card) return;
             const keyId = card.dataset.id;
 
+            // --- FIX: Thêm xử lý cho nút sao chép ---
             if (e.target.closest('.copy-btn')) {
                 const apiKeyToCopy = card.dataset.value;
                 copyToClipboard(apiKeyToCopy);
                 return;
             }
+            // --- FIX: Kết thúc xử lý nút sao chép ---
 
             if (e.target.closest('.delete-btn')) {
                 if (confirm('Bạn có chắc chắn muốn xóa API key này?')) {
