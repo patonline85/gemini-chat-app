@@ -83,6 +83,7 @@
                 <h3 class="card-name text-lg font-bold text-gray-900 break-all"></h3>
                 <div class="card-logo w-8 h-8 flex-shrink-0"></div>
             </div>
+            <!-- FIX: Thêm nút Sao chép (Copy) vào cấu trúc thẻ -->
             <div class="flex items-center gap-2">
                 <p class="card-masked-key font-mono text-sm text-gray-500 break-all flex-grow"></p>
                 <button title="Sao chép key" class="copy-btn p-2 text-gray-400 hover:text-indigo-600 rounded-lg transition-colors">
@@ -299,7 +300,6 @@
             }
         });
 
-        // --- FIX STARTS HERE: Event listener for copy button ---
         function copyToClipboard(text) {
             if (navigator.clipboard && window.isSecureContext) {
                 navigator.clipboard.writeText(text).then(() => {
@@ -335,20 +335,17 @@
             }
             document.body.removeChild(textArea);
         }
-        // --- FIX ENDS HERE ---
 
         keyListDiv.addEventListener('click', async (e) => {
             const card = e.target.closest('.key-card');
             if (!card) return;
             const keyId = card.dataset.id;
 
-            // --- FIX STARTS HERE: Handle copy button click ---
             if (e.target.closest('.copy-btn')) {
                 const apiKeyToCopy = card.dataset.value;
                 copyToClipboard(apiKeyToCopy);
-                return; // Stop further execution for copy action
+                return;
             }
-            // --- FIX ENDS HERE ---
 
             if (e.target.closest('.delete-btn')) {
                 if (confirm('Bạn có chắc chắn muốn xóa API key này?')) {
