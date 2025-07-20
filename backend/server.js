@@ -17,6 +17,11 @@ app.use(cors());
 // Cho phép server đọc dữ liệu JSON từ request body
 app.use(express.json({ limit: '10mb' }));
 
+// --- ROUTE CHO HEALTH CHECK ---
+app.get('/api/health', (req, res) => {
+  res.status(200).json({ status: "OK", message: "Server is up and running" });
+});
+
 // --- 4. Lấy API Key từ biến môi trường ---
 // Đây là cách an toàn để quản lý API Key.
 // Chúng ta sẽ thiết lập biến này trên Render sau.
